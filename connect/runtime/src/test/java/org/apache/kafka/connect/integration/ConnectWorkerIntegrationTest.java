@@ -575,7 +575,8 @@ public class ConnectWorkerIntegrationTest {
         CreateConnectorRequest createConnectorRequest = new CreateConnectorRequest(
             CONNECTOR_NAME,
             defaultSourceConnectorProps(TOPIC_NAME),
-            CreateConnectorRequest.InitialState.PAUSED
+            CreateConnectorRequest.InitialState.PAUSED,
+            null
         );
         connect.configureConnector(createConnectorRequest);
 
@@ -614,7 +615,8 @@ public class ConnectWorkerIntegrationTest {
         CreateConnectorRequest createConnectorRequest = new CreateConnectorRequest(
             CONNECTOR_NAME,
             props,
-            CreateConnectorRequest.InitialState.STOPPED
+            CreateConnectorRequest.InitialState.STOPPED,
+            null
         );
         connect.configureConnector(createConnectorRequest);
 
@@ -671,7 +673,8 @@ public class ConnectWorkerIntegrationTest {
         CreateConnectorRequest createConnectorRequest = new CreateConnectorRequest(
             CONNECTOR_NAME,
             props,
-            CreateConnectorRequest.InitialState.STOPPED
+            CreateConnectorRequest.InitialState.STOPPED,
+            null
         );
         connect.configureConnector(createConnectorRequest);
 
@@ -730,7 +733,8 @@ public class ConnectWorkerIntegrationTest {
         CreateConnectorRequest createConnectorRequest = new CreateConnectorRequest(
             CONNECTOR_NAME,
             defaultSourceConnectorProps(TOPIC_NAME),
-            CreateConnectorRequest.InitialState.PAUSED
+            CreateConnectorRequest.InitialState.PAUSED,
+            null
         );
         connect.configureConnector(createConnectorRequest);
 
@@ -752,7 +756,8 @@ public class ConnectWorkerIntegrationTest {
         createConnectorRequest = new CreateConnectorRequest(
             CONNECTOR_NAME,
             defaultSourceConnectorProps(TOPIC_NAME),
-            CreateConnectorRequest.InitialState.STOPPED
+            CreateConnectorRequest.InitialState.STOPPED,
+            null
         );
         connect.configureConnector(createConnectorRequest);
 

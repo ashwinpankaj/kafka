@@ -29,12 +29,16 @@ public class CreateConnectorRequest {
     private final Map<String, String> config;
     private final InitialState initialState;
 
+    private final ConnectorOffsets initialOffsets;
+
     @JsonCreator
     public CreateConnectorRequest(@JsonProperty("name") String name, @JsonProperty("config") Map<String, String> config,
-                                  @JsonProperty("initial_state") InitialState initialState) {
+                                  @JsonProperty("initial_state") InitialState initialState,
+                                  @JsonProperty("intial_offsets") ConnectorOffsets initialOffsets) {
         this.name = name;
         this.config = config;
         this.initialState = initialState;
+        this.initialOffsets = initialOffsets;
     }
 
     @JsonProperty
@@ -50,6 +54,10 @@ public class CreateConnectorRequest {
     @JsonProperty
     public InitialState initialState() {
         return initialState;
+    }
+    @JsonProperty
+    public ConnectorOffsets initialOffsets() {
+        return initialOffsets;
     }
 
     public TargetState initialTargetState() {

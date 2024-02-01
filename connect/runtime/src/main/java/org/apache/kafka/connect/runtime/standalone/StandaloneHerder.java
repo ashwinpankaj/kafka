@@ -183,11 +183,12 @@ public class StandaloneHerder extends AbstractHerder {
                                                 final Map<String, String> config,
                                                 boolean allowReplace,
                                                 final Callback<Created<ConnectorInfo>> callback) {
-        putConnectorConfig(connName, config, null, allowReplace, callback);
+        putConnectorConfig(connName, config, null, null, allowReplace, callback);
     }
 
     @Override
     public void putConnectorConfig(final String connName, final Map<String, String> config, final TargetState targetState,
+                                   Map<Map<String, ?>, Map<String, ?>> offsets,
                                    final boolean allowReplace, final Callback<Created<ConnectorInfo>> callback) {
         try {
             validateConnectorConfig(config, (error, configInfos) -> {

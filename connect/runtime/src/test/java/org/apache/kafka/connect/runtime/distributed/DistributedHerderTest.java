@@ -882,6 +882,80 @@ public class DistributedHerderTest {
     }
 
     @Test
+    public void testCreateConnectorInitialOffsets() throws Exception {
+        when(member.memberId()).thenReturn("leader");
+        when(member.currentProtocolVersion()).thenReturn(CONNECT_PROTOCOL_V0);
+        expectRebalance(1, Collections.emptyList(), Collections.emptyList(), true);
+        expectConfigRefreshAndSnapshot(SNAPSHOT);
+
+        when(statusBackingStore.connectors()).thenReturn(Collections.emptySet());
+        expectMemberPoll();
+
+        // Initial rebalance where this member becomes the leader
+        herder.tick();
+
+        // mock the actual validation since its asynchronous nature is difficult to test and should
+        // be covered sufficiently by the unit tests for the AbstractHerder class
+        ArgumentCaptor<Callback<ConfigInfos>> validateCallback = ArgumentCaptor.forClass(Callback.class);
+        doAnswer(invocation -> {
+            validateCallback.getValue().onCompletion(null, CONN2_CONFIG_INFOS);
+            return null;
+        }).when(herder).validateConnectorConfig(eq(CONN2_CONFIG), validateCallback.capture());
+
+        Map<Map<String, ?>, Map<String, ?>> offsets = Collections.singletonMap(
+            Collections.singletonMap("partitionKey", "partitionValue"),
+            Collections.singletonMap("offsetKey", "offsetValue"));
+        // CONN2 is new, should succeed
+        doNothing().when(configBackingStore).putConnectorConfig(eq(CONN2), eq(CONN2_CONFIG), eq(TargetState.STOPPED));
+
+        ArgumentCaptor<Callback<Message>> workerCallbackCapture = ArgumentCaptor.forClass(Callback.class);
+        Message msg = new Message("The offsets for this connector have been altered successfully");
+
+        doAnswer(invocation -> {
+            workerCallbackCapture.getValue().onCompletion(null, msg);
+            return null;
+        }).when(worker).modifyConnectorOffsets(eq(CONN2), eq(CONN2_CONFIG), eq(offsets), workerCallbackCapture.capture());
+
+
+
+        // This will occur just before/during the second tick
+        expectMemberEnsureActive();
+
+        // No immediate action besides this -- change will be picked up via the config log
+        List<String> stages = expectRecordStages(putConnectorCallback);
+
+        herder.putConnectorConfig(CONN2, CONN2_CONFIG, TargetState.STOPPED, offsets, false, putConnectorCallback);
+        // This tick runs the initial herder request, which issues an asynchronous request for
+        // offset validation
+        herder.tick();
+
+        // Once that validation is complete, another request is added to the herder request queue
+        // for setting offset
+        herder.tick();
+
+        // Next request is for connector validation
+        herder.tick();
+
+        // Next request for writing to config store
+        herder.tick();
+
+        time.sleep(1000L);
+        assertStatistics(3, 1, 100, 1000L);
+
+        ConnectorInfo info = new ConnectorInfo(CONN2, CONN2_CONFIG, Collections.emptyList(), ConnectorType.SOURCE);
+        verify(putConnectorCallback).onCompletion(isNull(), eq(new Herder.Created<>(true, info)));
+        verifyNoMoreInteractions(worker, member, configBackingStore, statusBackingStore, putConnectorCallback);
+
+        assertEquals(
+            Arrays.asList(
+                "ensuring membership in the cluster",
+                "setting initial offsets for connector " + CONN2,
+                "writing a config for connector " + CONN2 + " to the config topic"
+            ),
+            stages
+        );
+    }
+    @Test
     public void testConnectorNameConflictsWithWorkerGroupId() {
         Map<String, String> config = new HashMap<>(CONN2_CONFIG);
         config.put(ConnectorConfig.NAME_CONFIG, "test-group");

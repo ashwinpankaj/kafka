@@ -257,7 +257,7 @@ public class StandaloneHerderTest {
         when(worker.isRunning(CONNECTOR_NAME)).thenReturn(true);
         when(herder.connectorType(any())).thenReturn(ConnectorType.SINK);
 
-        herder.putConnectorConfig(CONNECTOR_NAME, config, TargetState.STOPPED, false, createCallback);
+        herder.putConnectorConfig(CONNECTOR_NAME, config, TargetState.STOPPED, null, false, createCallback);
         Herder.Created<ConnectorInfo> connectorInfo = createCallback.get(1000L, TimeUnit.SECONDS);
         assertEquals(
             new ConnectorInfo(CONNECTOR_NAME, connectorConfig(SourceSink.SINK), Collections.emptyList(), ConnectorType.SINK),

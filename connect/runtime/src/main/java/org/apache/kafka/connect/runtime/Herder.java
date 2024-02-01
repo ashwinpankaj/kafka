@@ -118,7 +118,8 @@ public interface Herder {
      *                     if a connector with the same name already exists
      * @param callback callback to invoke when the configuration has been written
      */
-    void putConnectorConfig(String connName, Map<String, String> config, TargetState targetState, boolean allowReplace,
+    void putConnectorConfig(String connName, Map<String, String> config, TargetState targetState,
+                            Map<Map<String, ?>, Map<String, ?>> offsets, boolean allowReplace,
                             Callback<Created<ConnectorInfo>> callback);
 
     /**
