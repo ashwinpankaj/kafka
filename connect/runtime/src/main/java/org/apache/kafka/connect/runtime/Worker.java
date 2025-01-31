@@ -569,7 +569,8 @@ public final class Worker {
             TaskStatus.Listener statusListener,
             TargetState initialState
     ) {
-        return startTask(id, connProps, taskProps, configState, statusListener,
+        final TaskStatus.Listener taskStatusListener = workerMetricsGroup.wrapStatusListener(statusListener);
+        return startTask(id, connProps, taskProps, configState, taskStatusListener,
                 new SinkTaskBuilder(id, configState, statusListener, initialState));
     }
 
@@ -592,7 +593,8 @@ public final class Worker {
             TaskStatus.Listener statusListener,
             TargetState initialState
     ) {
-        return startTask(id, connProps, taskProps, configState, statusListener,
+        final TaskStatus.Listener taskStatusListener = workerMetricsGroup.wrapStatusListener(statusListener);
+        return startTask(id, connProps, taskProps, configState, taskStatusListener,
                 new SourceTaskBuilder(id, configState, statusListener, initialState));
     }
 
@@ -620,7 +622,8 @@ public final class Worker {
             Runnable preProducerCheck,
             Runnable postProducerCheck
     ) {
-        return startTask(id, connProps, taskProps, configState, statusListener,
+        final TaskStatus.Listener taskStatusListener = workerMetricsGroup.wrapStatusListener(statusListener);
+        return startTask(id, connProps, taskProps, configState, taskStatusListener,
                 new ExactlyOnceSourceTaskBuilder(id, configState, statusListener, initialState, preProducerCheck, postProducerCheck));
     }
 
@@ -644,7 +647,6 @@ public final class Worker {
             TaskBuilder<?, ?> taskBuilder
     ) {
         final WorkerTask<?, ?> workerTask;
-        final TaskStatus.Listener taskStatusListener = workerMetricsGroup.wrapStatusListener(statusListener);
         try (LoggingContext loggingContext = LoggingContext.forTask(id)) {
             log.info("Creating task {}", id);
 
@@ -709,7 +711,7 @@ public final class Worker {
             } catch (Throwable t) {
                 log.error("Failed to start task {}", id, t);
                 connectorStatusMetricsGroup.recordTaskRemoved(id);
-                taskStatusListener.onFailure(id, t);
+                statusListener.onFailure(id, t);
                 return false;
             }
 
