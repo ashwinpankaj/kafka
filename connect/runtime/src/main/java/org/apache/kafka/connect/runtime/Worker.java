@@ -571,7 +571,7 @@ public final class Worker {
     ) {
         final TaskStatus.Listener taskStatusListener = workerMetricsGroup.wrapStatusListener(statusListener);
         return startTask(id, connProps, taskProps, configState, taskStatusListener,
-                new SinkTaskBuilder(id, configState, statusListener, initialState));
+                new SinkTaskBuilder(id, configState, taskStatusListener, initialState));
     }
 
     /**
@@ -595,7 +595,7 @@ public final class Worker {
     ) {
         final TaskStatus.Listener taskStatusListener = workerMetricsGroup.wrapStatusListener(statusListener);
         return startTask(id, connProps, taskProps, configState, taskStatusListener,
-                new SourceTaskBuilder(id, configState, statusListener, initialState));
+                new SourceTaskBuilder(id, configState, taskStatusListener, initialState));
     }
 
     /**
@@ -624,7 +624,7 @@ public final class Worker {
     ) {
         final TaskStatus.Listener taskStatusListener = workerMetricsGroup.wrapStatusListener(statusListener);
         return startTask(id, connProps, taskProps, configState, taskStatusListener,
-                new ExactlyOnceSourceTaskBuilder(id, configState, statusListener, initialState, preProducerCheck, postProducerCheck));
+                new ExactlyOnceSourceTaskBuilder(id, configState, taskStatusListener, initialState, preProducerCheck, postProducerCheck));
     }
 
     /**
